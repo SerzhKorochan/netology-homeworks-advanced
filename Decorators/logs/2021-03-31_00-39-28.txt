@@ -1,0 +1,1 @@
+{'current_datetime': '2021-03-31_00-39-28', 'name': 'calculate_salary', 'args': [(), {}], 'return_value': None}
