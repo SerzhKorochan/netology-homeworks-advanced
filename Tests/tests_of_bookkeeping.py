@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch
-from parameterized import parameterized
 import src.app as app
 
 
@@ -11,11 +10,21 @@ class TestBookkeeping(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @parameterized.expand([['10006', True], ['10007', False]])
-    def test_document_existence(self, doc_number, expected_value):
-        self.assertEqual(app.check_document_existance(doc_number), expected_value)
+    # @parameterized.expand([['10006', True], ['10007', False]])
+    # def test_document_existence(self, doc_number, expected_value):
+    #     self.assertEqual(app.check_document_existance(doc_number), expected_value)
 
-    @patch('src.app.get_doc_owner_name', return_value=9)
-    def test_get_owner_name(self, owner_name):
-        self.assertEqual(owner_name(), 9)
-        # TODO have to understand working of "mock"
+    @patch('builtins.input', return_value='10006')
+    def test_get_existing_user(self, mock_input):
+        self.assertEqual(app.get_doc_owner_name(), 'Аристарх Павлов')
+
+    @patch('builtins.input', return_value='100067')
+    def test_get_non_existing_user(self, mock_input):
+        self.assertEqual(app.get_doc_owner_name(), None)
+
+    def test_quantity_of_names_of_docs(self):
+        self.assertEqual(len(app.get_all_doc_owners_names()), len(app.documents))
+
+    # @patch('builtins.print', return_value={"type": "passport", "number": "2207 876234", "name": "Василий Гупкин"})
+    # def test_show_doc_info(self):
+    #     pass
