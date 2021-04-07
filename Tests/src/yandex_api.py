@@ -1,6 +1,6 @@
 import requests
 
-TOKEN = 'AgAAAABOCWpXAADLW4-gN8zpeECOkmTpiq8NESg'
+TOKEN = ''
 HEADERS = {
     'Authorization': f'OAuth {TOKEN}'
 }
