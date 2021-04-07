@@ -1,6 +1,7 @@
+import datetime
 import requests
 
-TOKEN = 'AgAAAABOCWpXAADLW4-gN8zpeECOkmTpiq8NESg'
+TOKEN = ''
 HEADERS = {
     'Authorization': f'OAuth {TOKEN}'
 }
@@ -17,4 +18,5 @@ def create_folder(folder_name):
     return response.status_code
 
 
-print(create_folder('NewFolder'))
+def get_current_datetime():
+    return datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
