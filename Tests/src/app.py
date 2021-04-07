@@ -90,14 +90,15 @@ def move_doc_to_shelf():
     user_shelf_number = input('Введите номер полки для перемещения - ')
     remove_doc_from_shelf(user_doc_number)
     append_doc_to_shelf(user_doc_number, user_shelf_number)
-    print('Документ номер "{}" был перемещен на полку номер "{}"'.format(user_doc_number, user_shelf_number))
+    # print('Документ номер "{}" был перемещен на полку номер "{}"'.format(user_doc_number, user_shelf_number))
+    return user_doc_number, user_shelf_number
 
 
 def show_document_info(document):
     doc_type = document['type']
     doc_number = document['number']
     doc_owner_name = document['name']
-    print('{} "{}" "{}"'.format(doc_type, doc_number, doc_owner_name))
+    return '{} "{}" "{}"'.format(doc_type, doc_number, doc_owner_name)
 
 
 def show_all_docs_info():
