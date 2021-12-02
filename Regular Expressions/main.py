@@ -23,9 +23,20 @@ def get_prepared_name(name: str):
     return prepared_name
 
 
+def get_num_by_layout(main_phone_num: str):
+    pattern = re.compile(r'(\+7|8)(\s+|\s+\(|\(|)([0-9]{3}|[0-9]{3})(\)\s+|\)|-|)([0-9]{3})(-|)([0-9]{2})(-|)([0-9]{2})')
+
+    layout = r"\1(\3)\5-\7-\9"
+
+    result = pattern.sub(layout, main_phone_num)
+
+    print(result)
+
+
 for item in contacts_list:
     name = ''
     person = []
+    phone_num = ''
 
     for idx, field in enumerate(item):
         if idx < 3: name += field
@@ -34,8 +45,12 @@ for item in contacts_list:
             person = get_prepared_name(name)
             corrected_phone_book.append(person)
 
+        if idx == 5:
+            phone_num += field
+            get_num_by_layout(phone_num)
 
-print(corrected_phone_book)
+
+#print(corrected_phone_book)
 
 # TODO 2: сохраните получившиеся данные в другой файл
 # код для записи файла в формате CSV
