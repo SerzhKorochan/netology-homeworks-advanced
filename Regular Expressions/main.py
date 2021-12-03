@@ -14,8 +14,9 @@ with open("phonebook_raw.csv", encoding='utf-8') as f:
 class AddressBook:
     regex_patterns = {
         'name': r'[А-Я][а-я]+',
-        'main_phone_num': r'(\+7|8)(\s+|\s+\(|\(|)([0-9]{3}|[0-9]{3})(\)\s+|\)|-|)([0-9]{3})(-|)([0-9]{2})(-|)([0-9]{2})',
-        'additional_phone_num': r'\s+'
+        'phone_num':
+            r'(\+7|8)(\s+|\s+\(|\(|)([0-9]{3}|[0-9]{3})(\)\s+|\)|-|)([0-9]{3})'
+            r'(-|)([0-9]{2})(-|)([0-9]{2})(((\s+\(|\s+)|)(доб\.\s+[0-9]{4}|)(\)|\s+|))',
     }
 
     def __init__(self, address_book: list):
@@ -30,13 +31,18 @@ class AddressBook:
             self.regex_patterns_obj[key] = re.compile(value)
 
     def __get_full_name_by_pattern(self, full_name: str):
-        return self.regex_patterns_obj['name'].findall(full_name)
+        quantity_of_names = 3
+        parts_of_full_name = self.regex_patterns_obj['name'].findall(full_name)
 
-    def __get_phone_number_by_pattern(self, phone_number: str, additional_number=False):
-        layout_for_main_phone = r'\1(\3)\5-\7-\9'
-        layout_for_additional_phone = ''
+        for i in range(len(parts_of_full_name), quantity_of_names):
+            parts_of_full_name.append('')
 
-        return self.regex_patterns_obj['main_phone_num'].sub(layout_for_main_phone, phone_number)
+        return parts_of_full_name
+
+    def __get_phone_number_by_pattern(self, phone_number: str):
+        layout_for_main_phone = r'\1(\3)\5-\7-\9\13'
+
+        return self.regex_patterns_obj['phone_num'].sub(layout_for_main_phone, phone_number)
 
     def revise(self):
         for note in self.address_book:
@@ -53,6 +59,8 @@ class AddressBook:
                         person = self.__get_full_name_by_pattern(full_name)
                     elif field_name == 'phone':
                         person.append(self.__get_phone_number_by_pattern(info))
+                    else:
+                        person.append(info)
 
                 self.revised_book.append(person)
 
