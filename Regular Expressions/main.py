@@ -1,8 +1,6 @@
 import os.path
-from pprint import pprint
 import pandas as pd
 import numpy as np
-import csv
 import re
 
 
@@ -11,8 +9,9 @@ class AddressBook:
     def __init__(self, address_book_path: str):
         if os.path.exists(address_book_path):
             self.initial_book_df = pd.read_csv(address_book_path)
+            self.normalized_book_df = pd.DataFrame(columns=self.initial_book_df.columns.values)
 
-    def __split_column_by_pattern(self, column_name: str, separation_names: list, pattern = r'[А-Я][а-я]+'):
+    def __split_column_by_pattern(self, column_name: str, separation_names: list, pattern: str):
         pattern = re.compile(pattern)
         self.initial_book_df['tmp'] = ''
 
@@ -35,32 +34,36 @@ class AddressBook:
     def __replace_values_by_pattern(self, column_name: str, pattern: str, repl: str):
         self.initial_book_df[column_name].replace(pattern, repl, inplace=True, regex=True)
 
-    def normalize(self):
-        #normalize full name
-        self.__split_column_by_pattern('lastname', ['lastname', 'firstname', 'surname'])
+    def __union_duplicates(self, keys: list):
+        grouped_df = self.initial_book_df.groupby(keys)
 
-        #normalize phone
+        for name, frame in grouped_df:
+            united_frame = frame
+
+            if len(frame) > 1:
+                united_frame = frame.iloc[0].combine_first(frame.iloc[1])
+
+            self.normalized_book_df = self.normalized_book_df.append(united_frame.loc[:], ignore_index=True)
+
+    def normalize(self):
+        # normalize full name
+        self.__split_column_by_pattern('lastname', ['lastname', 'firstname', 'surname'], r'[А-Я][а-я]+')
+
+        # normalize phone
         self.__replace_values_by_pattern('phone',
                                          r'(\+7|8)(\s+|\s+\(|\(|)([0-9]{3}|[0-9]{3})(\)\s+|\)|-|)([0-9]{3})'
                                          r'(-|)([0-9]{2})(-|)([0-9]{2})(((\s+\(|\s+)|)(доб\.\s+[0-9]{4}|)(\)|\s+|))',
                                          r'\1(\3)\5-\7-\9\13')
 
+        # union duplicates
+        self.__union_duplicates(['lastname', 'firstname'])
+
+        return self.normalized_book_df
+
+    @staticmethod
+    def save_book(book, name: str):
+        book.to_csv(f'{name}.csv', index=False)
+
 
 my_disordered_book = AddressBook('phonebook_raw.csv')
-my_disordered_book.normalize()
-pprint(my_disordered_book.initial_book_df[['lastname', 'firstname', 'phone']])
-
-
-# TODO 2: сохраните получившиеся данные в другой файл
-# код для записи файла в формате CSV
-# with open("phonebook.csv", "w") as f:
-#   datawriter = csv.writer(f, delimiter=',')
-#   # Вместо contacts_list подставьте свой список
-#   datawriter.writerows(contacts_list)
-
-# regex_patterns = {
-#         'name': r'[А-Я][а-я]+',
-#         'phone_num':
-#             r'(\+7|8)(\s+|\s+\(|\(|)([0-9]{3}|[0-9]{3})(\)\s+|\)|-|)([0-9]{3})'
-#             r'(-|)([0-9]{2})(-|)([0-9]{2})(((\s+\(|\s+)|)(доб\.\s+[0-9]{4}|)(\)|\s+|))',
-#     }
+my_disordered_book.save_book(my_disordered_book.normalize(), 'normalized_book')
